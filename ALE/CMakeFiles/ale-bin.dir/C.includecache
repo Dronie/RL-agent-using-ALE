@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/stefan/Desktop/Arcade-Learning-Environment-master/src/external/TinyMT/tinymt32.c
+tinymt32.h
+/home/stefan/Desktop/Arcade-Learning-Environment-master/src/external/TinyMT/tinymt32.h
+
+/home/stefan/Desktop/Arcade-Learning-Environment-master/src/external/TinyMT/tinymt32.h
+stdint.h
+-
+inttypes.h
+-
+

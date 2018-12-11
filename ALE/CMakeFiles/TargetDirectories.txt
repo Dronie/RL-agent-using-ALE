@@ -1,0 +1,14 @@
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/install.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/rebuild_cache.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/edit_cache.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/uninstall.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/list_install_components.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/videoRecordingExample.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/ale-bin.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/sharedLibraryInterfaceWithModesExample.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/ale-lib.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/ale-c-lib.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/install/local.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/sharedLibraryInterfaceExample.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/install/strip.dir
+/home/stefan/Desktop/Arcade-Learning-Environment-master/CMakeFiles/fifoInterfaceExample.dir

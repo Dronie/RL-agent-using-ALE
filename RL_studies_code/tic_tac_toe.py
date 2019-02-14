@@ -46,7 +46,7 @@ class Player:
     def make_move(self):
         
     
-    
+# play_game function code authored by The Lazy Programmer from https://www.udemy.com/artificial-intelligence-reinforcement-learning-in-python/  
 def play_game(p1, p2, env, draw=False):
     current_player = None
     while not env.game_over(): # loop until game is over

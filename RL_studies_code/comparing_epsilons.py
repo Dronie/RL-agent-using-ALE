@@ -1,3 +1,5 @@
+# This code is a modified version of code authored by The Lazy Programmer from https://www.udemy.com/artificial-intelligence-reinforcement-learning-in-python/
+
 import numpy as np
 import matplotlib.pyplot as plt
 

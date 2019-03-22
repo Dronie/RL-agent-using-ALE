@@ -19,7 +19,7 @@ nb_actions = env.action_space.n
 
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense(32))
+model.add(Dense(8))
 model.add(Activation('relu'))
 model.add(Dense(nb_actions))
 model.add(Activation('linear'))
@@ -31,6 +31,6 @@ dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmu
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Okay, now its time to learn something! We visualise the training here for show, but this slows down training quite a lot.
-dqn.fit(env, nb_steps=1000, visualize=True, verbose=2)
+dqn.fit(env, nb_steps=5000, visualize=False, verbose=2)
 
 dqn.test(env, nb_episodes=5, visualize=True)

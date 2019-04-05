@@ -1,19 +1,3 @@
-# OpenGym CartPole-v0
-# -------------------
-#
-# This code demonstrates use of a basic Q-network (without target network)
-# to solve OpenGym CartPole-v0 problem.
-#
-# Made as part of blog series Let's make a DQN, available at: 
-# https://jaromiru.com/2016/10/03/lets-make-a-dqn-implementation/
-# 
-# author: Jaromir Janisch, 2016
-
-
-#--- enable this to run on GPU
-# import os    
-# os.environ['THEANO_FLAGS'] = "device=gpu,floatX=float32"  
-
 import random, numpy, math, gym
 
 #-------------------- BRAIN ---------------------------
@@ -29,7 +13,7 @@ class Brain:
         self.model = self._createModel()
         # self.model.load_weights("cartpole-basic.h5")
 
-    def _createModel(self):
+    def _createModel(self): # create the NN
         model = Sequential()
 
         model.add(Dense(output_dim=64, activation='relu', input_dim=stateCnt))
@@ -40,10 +24,10 @@ class Brain:
 
         return model
 
-    def train(self, x, y, epoch=1, verbose=0):
+    def train(self, x, y, epoch=1, verbose=0):# perform supervised training step
         self.model.fit(x, y, batch_size=64, nb_epoch=epoch, verbose=verbose)
 
-    def predict(self, s):
+    def predict(self, s): # predict Q function values in state s
         return self.model.predict(s)
 
     def predictOne(self, s):
@@ -51,26 +35,26 @@ class Brain:
 
 #-------------------- MEMORY --------------------------
 class Memory:   # stored as ( s, a, r, s_ )
-    samples = []
+    samples = [] # the core of the class
 
     def __init__(self, capacity):
         self.capacity = capacity
 
-    def add(self, sample):
+    def add(self, sample): # add a sample to memeory
         self.samples.append(sample)        
 
         if len(self.samples) > self.capacity:
-            self.samples.pop(0)
+            self.samples.pop(0) # if the size of the samples list is bigger than capacity, pop the first element in the list
 
-    def sample(self, n):
-        n = min(n, len(self.samples))
-        return random.sample(self.samples, n)
+    def sample(self, n): # returns a random set of samples (of size n)
+        n = min(n, len(self.samples)) # n = smallest out of n and the len(samples)
+        return random.sample(self.samples, n) # return n random samples from samples[]
 
 #-------------------- AGENT ---------------------------
 MEMORY_CAPACITY = 100000
 BATCH_SIZE = 64
 
-GAMMA = 0.99
+GAMMA = 0.99 
 
 MAX_EPSILON = 1
 MIN_EPSILON = 0.01
@@ -84,23 +68,23 @@ class Agent:
         self.stateCnt = stateCnt
         self.actionCnt = actionCnt
 
-        self.brain = Brain(stateCnt, actionCnt)
-        self.memory = Memory(MEMORY_CAPACITY)
+        self.brain = Brain(stateCnt, actionCnt) # 
+        self.memory = Memory(MEMORY_CAPACITY) 
         
-    def act(self, s):
-        if random.random() < self.epsilon:
-            return random.randint(0, self.actionCnt-1)
+    def act(self, s): # decide what action to take in state s
+        if random.random() < self.epsilon: # epsilon-greedy
+            return random.randint(0, self.actionCnt-1) # take random action
         else:
-            return numpy.argmax(self.brain.predictOne(s))
+            return numpy.argmax(self.brain.predictOne(s)) # take greedy action
 
-    def observe(self, sample):  # in (s, a, r, s_) format
+    def observe(self, sample):  # adds sample (s, a, r, s_) to memory
         self.memory.add(sample)        
 
         # slowly decrease Epsilon based on our eperience
         self.steps += 1
         self.epsilon = MIN_EPSILON + (MAX_EPSILON - MIN_EPSILON) * math.exp(-LAMBDA * self.steps)
 
-    def replay(self):    
+    def replay(self): # replays memories and improves
         batch = self.memory.sample(BATCH_SIZE)
         batchLen = len(batch)
 
@@ -132,22 +116,22 @@ class Agent:
 
 #-------------------- ENVIRONMENT ---------------------
 class Environment:
-    def __init__(self, problem):
+    def __init__(self, problem): # abstraction for the gym env
         self.problem = problem
         self.env = gym.make(problem)
 
-    def run(self, agent):
-        s = self.env.reset() # reset the environment
-        R = 0  # reset the total reward
+    def run(self, agent): # runs one episode
+        s = self.env.reset() # reset the environment starting a new episode
+        R = 0  # reset the total reward for the new episode
 
-        while True:            
-            self.env.render()
+        while True: # loop forever
+            #self.env.render() # render a visualisation of the current problem 
 
-            a = agent.act(s)
+            a = agent.act(s) # decides what action to take (performs eps-greedy, if greedy action taken)
 
-            s_, r, done, info = self.env.step(a)
+            s_, r, done, info = self.env.step(a)# environment performs this action and returns the next state and a reward
 
-            if done: # terminal state
+            if done: # terminal state (when done is true, it means the episode has terminated)
                 s_ = None
 
             agent.observe( (s, a, r, s_) )
@@ -165,8 +149,8 @@ class Environment:
 PROBLEM = 'CartPole-v0'
 env = Environment(PROBLEM)
 
-stateCnt  = env.env.observation_space.shape[0]
-actionCnt = env.env.action_space.n
+stateCnt  = env.env.observation_space.shape[0] # returns the shape of the 
+actionCnt = env.env.action_space.n # returns the amount of actions possible in the environment
 
 agent = Agent(stateCnt, actionCnt)
 

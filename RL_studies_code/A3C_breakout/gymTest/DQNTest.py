@@ -29,7 +29,7 @@ class Brain:
 
     def predict(self, s): # predict Q function values in state s
         return self.model.predict(s)
-
+    
     def predictOne(self, s):
         return self.predict(s.reshape(1, self.stateCnt)).flatten()
 
@@ -127,7 +127,7 @@ class Environment:
         while True: # loop forever
             #self.env.render() # render a visualisation of the current problem 
 
-            a = agent.act(s) # decides what action to take (performs eps-greedy, if greedy action taken)
+            a = agent.act(s) # decides what action to take (performs eps-greedy)
 
             s_, r, done, info = self.env.step(a)# environment performs this action and returns the next state and a reward
 

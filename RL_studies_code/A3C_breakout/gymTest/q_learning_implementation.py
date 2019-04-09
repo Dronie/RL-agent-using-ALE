@@ -6,7 +6,7 @@ class Q_learning_example:
         self.gamma = gamma
         self.env = np.zeros((self.dim, self.dim))
         self.q = np.zeros((self.dim, self.dim))
-        self.end_state = np.random.randint(self.dim)
+        self.end_state = 10
         
     def init_env(self, connections): # connections should be the adjacency matrix of your graph
         for i in range(0,len(self.env)):
@@ -41,18 +41,23 @@ class Q_learning_example:
             state = np.argmax(self.q[state])
             temp.append(state)
         print(temp)
-            
+
 if __name__ == '__main__':
-    connections = [[0,0,0,0,1,0],
-                   [0,0,0,1,0,1],
-                   [0,0,0,1,0,0],
-                   [0,1,1,0,1,0],
-                   [1,0,0,1,0,1],
-                   [0,1,0,0,1,0]]
+    connections = [[0,1,1,0,0,0,0,0,0,0,0],
+                   [1,0,1,0,0,0,0,0,0,0,0],
+                   [1,1,0,1,1,1,1,0,0,0,0],
+                   [0,0,1,0,0,0,0,0,0,0,1],
+                   [0,0,1,0,0,0,0,0,0,0,0],
+                   [0,0,1,0,0,0,0,0,0,0,0],
+                   [0,0,1,0,0,0,0,1,1,0,0],
+                   [0,0,0,0,0,0,1,0,0,1,0],
+                   [0,0,0,0,0,0,1,0,0,0,0],
+                   [0,0,0,0,0,0,0,1,0,0,0],
+                   [0,0,0,1,0,0,0,0,0,0,0]]
     
     DIMENSIONS = len(connections)
     GAMMA = 0.8
-    EPISODES = 100
+    EPISODES = 1000
     
     q = Q_learning_example(DIMENSIONS, GAMMA)
     q.init_env(connections)

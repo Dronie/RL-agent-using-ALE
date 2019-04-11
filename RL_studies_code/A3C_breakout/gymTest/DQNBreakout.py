@@ -5,14 +5,10 @@ from keras.models import Sequential, Model
 from keras.layers import *
 from keras.optimizers import *
 
-# ---- PREPROCESSING ---- (Ecoffet, Adrian L: https://becominghuman.ai/lets-build-an-atari-ai-part-1-dqn-df57e8ff3b26)
-
-
 class Preprocessor:
     def __init__(self):
         self.stack_size = 4
         self.stacked_frames = collections.deque([np.zeros((105,80), dtype=np.int) for i in range(self.stack_size)], maxlen=4)
-        self.is_new_episode = True
     
     def to_greyscale(self, img):
         return np.mean(img, axis=2).astype(np.uint8)
@@ -32,7 +28,7 @@ class Preprocessor:
     def stack(self, state):
         frame = self.preprocess(state)
         
-        if self.is_new_episode:
+        if is_new_episode:
             self.stacked_frames = collections.deque([np.zeros((105,80), dtype=np.int) for i in range(self.stack_size)], maxlen=4)
             
             self.stacked_frames.append(frame)
@@ -48,11 +44,10 @@ class Preprocessor:
         return stacked_state, self.stacked_frames
     
 class DQN:
-    def __init__(self, env):
+    def __init__(self):
         self.model = self.create_model()
         self.process_model()
         self.gamma = 0.99
-        self.env = env
         
     #input expected as an array of stacked states (shape of (x, 4, 105, 80))
     def create_model(self):
@@ -151,7 +146,10 @@ def random_play():
         env.render()
             
 if __name__ == '__main__':
-    prep = preprocessor()
+    is_new_episode = True
+    
+    prep = Preprocessor()
     env = Environment('BreakoutDeterministic-v4')
-    dqn = DQN(env)
+    dqn = DQN()
+    env = gym.make('BreakoutDeterministic-v4')
     

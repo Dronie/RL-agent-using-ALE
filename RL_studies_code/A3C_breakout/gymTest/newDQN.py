@@ -15,6 +15,9 @@ print "The size of the action space is:", env.action_space.n
 # one hot encode the action space
 possible_actions = np.array(np.identity(env.action_space.n, dtype=int).tolist())
 
+def one_hot_to_scalar(action):
+    return np.argmax(action)
+
 # defining the preprocessing functions
 def preprocess_frame(frame):
     grey = np.mean(frame, axis=2).astype(np.uint8)
@@ -106,5 +109,61 @@ class DQN:
         self.model.compile(self.optimizer, loss='mse')
 
 DQNetwork = DQN(state_size, action_size, learning_rate)
+
+class Memory():
+    def __init__(self, max_size):
+        self.samples = collections.deque(maxlen = max_size)
+    
+    def add(self, state):
+        self.samples.append(state)
+    
+    def sample(self, batch_size):
+        n = min(batch_size, len(self.samples))
+        return random.sample(self.samples, n)
+
+memory = Memory(memory_size)
+for i in range(pretrain_length):
+    if i == 0:
+        state = env.reset()
+        
+        state, stacked_frames = stack_frames(stacked_frames, state, True)
+    
+    choice = random.randint(1, len(possible_actions)) - 1
+    action = possible_actions[choice]
+    action = one_hot_to_scalar(action)
+    next_state, reward, done, info = env.step(action)
+    
+    next_state, stacked_frames = stack_frames(stacked_frames, next_state, False)
+    
+    if done:
+        next_state = np.zeros(state.shape)
+        
+        memory.add((state, action, reward, next_state, done))
+        
+        state = env.reset()
+        
+        state, stacked_frames = stack_frames(stacked_frames, state, True)
+    
+    else:
+        memory.add((state, action, reward, next_state, done))
+        
+        state = next_state
+        
+def predict_action(explore_start, explore_stop, decay_rate, decay_step, state, actions):
+    exp_exp_tradeoff = np.random.rand()
+    
+    explore_probability = explore_stop + (explore_start - explore_stop) * np.exp(-decay_rate * decay_step)
+    
+    if (explore_probability > exp_exp_tradeoff):
+        choice = random.randint(1,len(possible_actions)) - 1
+        action = possible_actions[choice]
+    
+    else:
+        Qs = DQNetwork.predict([state, action])
+        choice = np.argmax(Qs)
+        action = possible_actions[choice]
+    
+    return action, explore_probability
+
 
 

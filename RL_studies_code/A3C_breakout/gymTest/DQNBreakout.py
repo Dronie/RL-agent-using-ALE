@@ -1,5 +1,5 @@
 import numpy as np
-import gym, random, collections
+import gym, random, collections, math
 
 from keras.models import Sequential, Model
 from keras.layers import *
@@ -49,9 +49,9 @@ class DQN:
         self.process_model()
         self.gamma = 0.99
         
-    #input expected as an array of stacked states (shape of (x, 4, 105, 80))
+    #input expected as an array of stacked states (shape of (x, 105, 80, 4))
     def create_model(self):
-        ATARI_STATE_SPACE = (4, 105, 80)
+        ATARI_STATE_SPACE = (105, 80, 4)
         ACTION_SPACE = 4,
         
         state_input = Input(shape=(ATARI_STATE_SPACE))
@@ -78,7 +78,13 @@ class DQN:
         next_Q_values = self.model.predict([next_states, np.ones(actions.shape)])
         #next_Q_values[is_terminal] = 0
         Q_values = rewards + self.gamma * np.max(next_Q_values, axis=1)
-        model.fit([initial_states, actions], actions * Q_values[:, None], nb_epoch=1, batch_size=len(initial_states), verbose=0)
+        self.model.fit([initial_states, actions], actions * Q_values[:, None], nb_epoch=1, batch_size=len(initial_states), verbose=0)
+
+    def predict(self, s):
+        return self.model.predict(s)
+    
+    def predictOne(self, s):
+        return self.predict(s.reshape(1, self.stateCnt)).flatten()
         
 
 class Environment:
@@ -125,10 +131,61 @@ class Memory:
             self.remove()
 
 class Agent:
-    def __init__(self):
-        self.lol = 0
+    def __init__(self, actionCnt, stateCnt):
+        self.actionCnt = actionCnt
+        self.stateCnt = stateCnt
+        self.max_eps = 0.1
+        self.min_eps = 0.01
+        self.decay_rate = 0.01
+        self.steps = 0
+
+        self.dqn = DQN()
+        self.memory = Memory(1000000)
     
-    #def act(self, state):
+    def act(self, s):
+        if random.random() < self.epsilon:
+            return random.randint(0, self.actionCnt-1)
+        else:
+            return np.argmax(self.dqn.predictOne(s))
+    
+    def observe(self, sample):  # in (s, a, r, s_) format
+        self.memory.add(sample)        
+
+        # slowly decrease Epsilon based on our eperience
+        self.steps += 1
+        self.epsilon = self.min_eps + (self.max_eps - self.min_eps) * math.exp(-self.decay_rate * self.steps)
+
+    def replay(self):    
+        batch = self.memory.sample(64)
+        batchLen = len(batch)
+
+        no_state = np.zeros(self.stateCnt)
+
+        states = np.array([ o[0] for o in batch ])
+        states_ = np.array([ (no_state if o[3] is None else o[3]) for o in batch ])
+
+        p = self.dqn.predict(states)
+        p_ = self.dqn.predict(states_)
+
+        x = np.zeros((batchLen, self.stateCnt))
+        y = np.zeros((batchLen, self.actionCnt))
+        
+        for i in range(batchLen):
+            o = batch[i]
+            s = o[0]; a = o[1]; r = o[2]; s_ = o[3]
+            
+            t = p[i]
+            if s_ is None:
+                t[a] = r
+            else:
+                t[a] = r + dqn.gamma * np.amax(p_[i])
+
+            x[i] = s
+            y[i] = t
+
+        self.brain.train(x, y)
+
+
 
 def random_play():
     # Create a breakout environment
@@ -147,9 +204,7 @@ def random_play():
             
 if __name__ == '__main__':
     is_new_episode = True
-    
     prep = Preprocessor()
     env = Environment('BreakoutDeterministic-v4')
-    dqn = DQN()
     env = gym.make('BreakoutDeterministic-v4')
     
